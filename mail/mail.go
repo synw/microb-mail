@@ -8,6 +8,7 @@ import (
 	"github.com/synw/microb/libmicrob/events"
 	//"github.com/synw/microb/libmicrob/msgs"
 	"github.com/synw/terr"
+	"gopkg.in/gomail.v2"
 	"html/template"
 	"net/http"
 	"os"
@@ -59,8 +60,24 @@ func ProcessMailForm(w http.ResponseWriter, r *http.Request) {
 		events.Error("mail", "Can not process mail form", tr)
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 	}
+	// send mail
+	sendMail(email, subject, msg)
+	// respond
 	status := http.StatusOK
 	w = httpResponseWriter{w, &status}
+}
+
+func sendMail(from string, subject string, msg string) {
+	m := gomail.NewMessage()
+	m.SetHeader("From", from)
+	m.SetHeader("To", "synwx@protonmail.com")
+	m.SetHeader("Subject", subject)
+	m.SetBody("text/plain", msg)
+	d := gomail.NewDialer("localhost", 25, "", "")
+	if err := d.DialAndSend(m); err != nil {
+		panic(err)
+	}
+	events.Info("mail", "Sending mail from "+from)
 }
 
 func sanitizeInput(input string) string {
