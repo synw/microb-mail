@@ -2,10 +2,11 @@ package mail
 
 import (
 	"errors"
+	"github.com/microcosm-cc/bluemonday"
 	"github.com/synw/microb-http/csrf"
 	"github.com/synw/microb-http/types"
 	"github.com/synw/microb/libmicrob/events"
-	"github.com/synw/microb/libmicrob/msgs"
+	//"github.com/synw/microb/libmicrob/msgs"
 	"github.com/synw/terr"
 	"html/template"
 	"net/http"
@@ -26,8 +27,6 @@ func ParseTemplate() {
 }
 
 func ServeMailForm(w http.ResponseWriter, r *http.Request) {
-	//context := make(map[string]string)
-	//context["Token"] = nosurf.Token(r)
 	status := http.StatusOK
 	w = httpResponseWriter{w, &status}
 	token, tr := csrf.GetToken()
@@ -49,11 +48,23 @@ func ServeMailForm(w http.ResponseWriter, r *http.Request) {
 
 func ProcessMailForm(w http.ResponseWriter, r *http.Request) {
 	token := r.FormValue("token")
+	email := r.FormValue("email")
+	subject := r.FormValue("subject")
+	msg := r.FormValue("content")
+	msg = sanitizeInput(msg)
+	email = sanitizeInput(email)
+	subject = sanitizeInput(subject)
 	tr := csrf.VerifyToken(token)
 	if tr != nil {
 		events.Error("mail", "Can not process mail form", tr)
-		http.Error(w, tr.Format(), http.StatusUnauthorized)
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 	}
 	status := http.StatusOK
 	w = httpResponseWriter{w, &status}
+}
+
+func sanitizeInput(input string) string {
+	p := bluemonday.NewPolicy()
+	output := p.Sanitize(input)
+	return output
 }
