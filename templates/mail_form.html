@@ -1,0 +1,43 @@
+{{template "base" .}}
+{{define "content"}}
+<div style="max-width:1000px; margin:0 auto">
+	<h1 style="margin:1em 0 1em 0 !important" class="text-center"></i>Contact</h1>
+	<div>
+		<form id="contact_form" action="/contact/post" method="post">
+			<input type="hidden" name="token" value="{{ .Token }}" />
+			<label for="id_email">Email&nbsp;:</label>
+			<input name="email" required="" id="id_email" maxlength="254" type="email">
+			<label for="id_subject">Subject&nbsp;:</label>
+			<input name="subject" required="" id="id_subject" maxlength="255" type="text">
+			<label for="id_content">Message&nbsp;:</label>
+			<textarea name="content" required="" id="id_content" rows="8" 
+				cols="100" style="width:100% !important;max-width:100% !important;"></textarea>
+			<div id="submit_form">
+				<input value="Send message" type="submit">
+			</div>
+		</form>
+	</div>
+</div>
+<style>
+#contact_form label {
+	display:block;
+}
+#contact_form input {
+	width:99.5%;
+	margin:5px 0px 20px 0px;
+}
+#contact_form .btn-submit {
+	height:40px;
+	width:100%;
+	margin: 10px 0px 10px 0px;
+	background-color:steelblue;
+	color:white;
+	border:0px;
+	cursor:pointer;
+}
+.btn-submit:hover {
+	background-color:#ccc;
+	cursor:pointer;
+}
+</style>
+{{end}}
