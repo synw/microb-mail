@@ -78,8 +78,6 @@ func ProcessMailForm(w http.ResponseWriter, r *http.Request) {
 		sendMail(email, subject, msg)
 	}
 	// respond
-	//status := http.StatusOK
-	//w = httpResponseWriter{w, &status}
 	http.Redirect(w, r, "/mail/ok", http.StatusMovedPermanently)
 
 }
@@ -91,7 +89,6 @@ func sendMail(from string, subject string, msg string) {
 	m.SetHeader("Subject", subject)
 	m.SetBody("text/plain", msg)
 	d := gomail.NewDialer(Conf.Host, Conf.Port, Conf.User, Conf.Password)
-	//d := gomail.NewDialer("localhost", 25, "", "")
 	if err := d.DialAndSend(m); err != nil {
 		panic(err)
 	}
