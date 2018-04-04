@@ -78,8 +78,10 @@ func ProcessMailForm(w http.ResponseWriter, r *http.Request) {
 		sendMail(email, subject, msg)
 	}
 	// respond
-	status := http.StatusOK
-	w = httpResponseWriter{w, &status}
+	//status := http.StatusOK
+	//w = httpResponseWriter{w, &status}
+	http.Redirect(w, r, "/mail/ok", http.StatusMovedPermanently)
+
 }
 
 func sendMail(from string, subject string, msg string) {
