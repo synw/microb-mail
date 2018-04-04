@@ -5,8 +5,8 @@ import (
 	"github.com/microcosm-cc/bluemonday"
 	"github.com/synw/microb-http/csrf"
 	"github.com/synw/microb-http/types"
+	config "github.com/synw/microb-mail/conf"
 	"github.com/synw/microb/libmicrob/events"
-	//"github.com/synw/microb/libmicrob/msgs"
 	"github.com/synw/terr"
 	"gopkg.in/gomail.v2"
 	"html/template"
@@ -14,12 +14,23 @@ import (
 	"os"
 )
 
+var Conf *config.Conf
+var mailTemplate *template.Template
+
 type httpResponseWriter struct {
 	http.ResponseWriter
 	status *int
 }
 
-var mailTemplate *template.Template
+func Init() *terr.Trace {
+	conf, tr := config.GetConf()
+	if tr != nil {
+		events.Error("mail", "Can not get mail service config", tr, "fatal")
+		return tr
+	}
+	Conf = conf
+	return nil
+}
 
 func ParseTemplate() {
 	path, _ := os.Getwd()
@@ -70,10 +81,11 @@ func ProcessMailForm(w http.ResponseWriter, r *http.Request) {
 func sendMail(from string, subject string, msg string) {
 	m := gomail.NewMessage()
 	m.SetHeader("From", from)
-	m.SetHeader("To", "synwx@protonmail.com")
+	m.SetHeader("To", Conf.To)
 	m.SetHeader("Subject", subject)
 	m.SetBody("text/plain", msg)
-	d := gomail.NewDialer("localhost", 25, "", "")
+	d := gomail.NewDialer(Conf.Host, Conf.Port, Conf.User, Conf.Password)
+	//d := gomail.NewDialer("localhost", 25, "", "")
 	if err := d.DialAndSend(m); err != nil {
 		panic(err)
 	}

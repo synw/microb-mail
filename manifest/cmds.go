@@ -11,6 +11,10 @@ func getCmds() map[string]*types.Cmd {
 }
 
 func initService(dev bool, start bool) error {
+	tr := mail.Init()
+	if tr != nil {
+		return tr.ToErr()
+	}
 	mail.ParseTemplate()
 	return nil
 }
