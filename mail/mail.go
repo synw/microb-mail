@@ -74,7 +74,7 @@ func ProcessMailForm(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 	}
 	// send mail
-	if dev == false {
+	if Dev == false {
 		sendMail(email, subject, msg)
 	}
 	// respond
