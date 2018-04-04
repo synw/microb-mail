@@ -15,6 +15,10 @@ func initService(dev bool, start bool) error {
 	if tr != nil {
 		return tr.ToErr()
 	}
+	tr = mail.InitDb()
+	if tr != nil {
+		return tr.ToErr()
+	}
 	mail.ParseTemplate()
 	return nil
 }

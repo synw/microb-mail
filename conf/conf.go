@@ -15,6 +15,7 @@ type Conf struct {
 	Port     int
 	User     string
 	Password string
+	DbAddr   string
 }
 
 func getBasePath() string {
@@ -46,6 +47,7 @@ func GetConf() (*Conf, *terr.Trace) {
 	viper.SetDefault("port", 25)
 	viper.SetDefault("user", "")
 	viper.SetDefault("password", "")
+	viper.SetDefault("db", "mails.sqlite")
 	// get the actual conf
 	err := viper.ReadInConfig()
 	if err != nil {
@@ -66,6 +68,7 @@ func GetConf() (*Conf, *terr.Trace) {
 		Port:     int(viper.Get("port").(float64)),
 		User:     viper.Get("user").(string),
 		Password: viper.Get("password").(string),
+		DbAddr:   viper.Get("db").(string),
 	}
 	return conf, nil
 }

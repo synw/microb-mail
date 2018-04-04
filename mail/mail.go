@@ -75,14 +75,21 @@ func ProcessMailForm(w http.ResponseWriter, r *http.Request) {
 	}
 	// send mail
 	if Dev == false {
-		sendMail(email, subject, msg)
+		tr := sendMail(email, subject, msg)
+		if tr != nil {
+			tr = terr.Pass("mail.ProcessMailForm", tr)
+			events.Error("mail", msg, tr)
+			return
+		}
 	}
+	// save the mail to database
+	saveToDb(email, Conf.To, subject, msg)
 	// respond
 	http.Redirect(w, r, "/mail/ok", http.StatusMovedPermanently)
 
 }
 
-func sendMail(from string, subject string, msg string) {
+func sendMail(from string, subject string, msg string) *terr.Trace {
 	m := gomail.NewMessage()
 	m.SetHeader("From", from)
 	m.SetHeader("To", Conf.To)
@@ -90,9 +97,11 @@ func sendMail(from string, subject string, msg string) {
 	m.SetBody("text/plain", msg)
 	d := gomail.NewDialer(Conf.Host, Conf.Port, Conf.User, Conf.Password)
 	if err := d.DialAndSend(m); err != nil {
-		panic(err)
+		tr := terr.New("mail.sendMail", errors.New("Can not send mail"))
+		return tr
 	}
 	events.Info("mail", "Sending mail from "+from)
+	return nil
 }
 
 func sanitizeInput(input string) string {
