@@ -1,6 +1,8 @@
 {
-	"centrifugo_addr":"localhost:8001",
-	"centrifugo_key":"secret_key",
-	"domain": "localhost",
-	"addr":"localhost:8080"
+	"to": "email@adress.tld",
+	"host": "localhost",
+	"port": 25,
+	"user": "",
+	"password": "",
+	"db": "mails.sqlite"
 }
