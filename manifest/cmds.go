@@ -11,7 +11,7 @@ func getCmds() map[string]*types.Cmd {
 }
 
 func initService(dev bool, start bool) error {
-	tr := mail.Init()
+	tr := mail.Init(dev)
 	if tr != nil {
 		return tr.ToErr()
 	}

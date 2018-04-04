@@ -15,6 +15,7 @@ import (
 )
 
 var Conf *config.Conf
+var Dev bool
 var mailTemplate *template.Template
 
 type httpResponseWriter struct {
@@ -22,7 +23,8 @@ type httpResponseWriter struct {
 	status *int
 }
 
-func Init() *terr.Trace {
+func Init(dev bool) *terr.Trace {
+	Dev = dev
 	conf, tr := config.GetConf()
 	if tr != nil {
 		events.Error("mail", "Can not get mail service config", tr, "fatal")
@@ -72,7 +74,9 @@ func ProcessMailForm(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 	}
 	// send mail
-	sendMail(email, subject, msg)
+	if dev == false {
+		sendMail(email, subject, msg)
+	}
 	// respond
 	status := http.StatusOK
 	w = httpResponseWriter{w, &status}
