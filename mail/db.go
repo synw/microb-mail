@@ -3,6 +3,7 @@ package mail
 import (
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
+	"github.com/synw/microb/libmicrob/events"
 	"github.com/synw/microb/libmicrob/msgs"
 	"github.com/synw/terr"
 )
@@ -36,6 +37,18 @@ func InitDb() *terr.Trace {
 	db.AutoMigrate(&Mail{})
 	database = db
 	return nil
+}
+
+func GetMails() ([]Mail, *terr.Trace) {
+	var mails []Mail
+	//rows, err := database.Table("mails").Limit(10).Order("created_at desc").Rows()
+	res := database.Limit(10).Order("created_at desc").Find(&mails)
+	if res.Error != nil {
+		tr := terr.New("mail.db.GetMails", res.Error)
+		events.Error("mail", "Can not get mails from db", tr)
+		return mails, tr
+	}
+	return mails, nil
 }
 
 func saveToDb(from string, to string, subject string, content string) *terr.Trace {
