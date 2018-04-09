@@ -35,3 +35,7 @@ Configure `config_email.json`: ex with Postfix:
 
 The email form is avalaible at `/mail`
 
+## Cli commands
+
+Todo: count or read the last emails from the database
+
