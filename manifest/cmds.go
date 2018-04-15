@@ -32,7 +32,7 @@ func mails() *types.Cmd {
 	return cmd
 }
 
-func runMails(cmd *types.Cmd, c chan *types.Cmd) {
+func runMails(cmd *types.Cmd, c chan *types.Cmd, args ...interface{}) {
 	// this function will be run on command call
 	var resp []interface{}
 	resp = append(resp, "Last 10 mails sent:")
