@@ -6,7 +6,7 @@ import (
 	"github.com/synw/microb-http/csrf"
 	"github.com/synw/microb-http/types"
 	config "github.com/synw/microb-mail/conf"
-	"github.com/synw/microb/libmicrob/events"
+	"github.com/synw/microb/events"
 	"github.com/synw/terr"
 	"gopkg.in/gomail.v2"
 	"html/template"
@@ -27,7 +27,7 @@ func Init(dev bool) *terr.Trace {
 	Dev = dev
 	conf, tr := config.GetConf()
 	if tr != nil {
-		events.Error("mail", "Can not get mail service config", tr, "fatal")
+		events.Fatal("mail", "Can not get mail service config", tr)
 		return tr
 	}
 	Conf = conf
@@ -45,7 +45,7 @@ func ServeMailForm(w http.ResponseWriter, r *http.Request) {
 	w = httpResponseWriter{w, &status}
 	token, tr := csrf.GetToken()
 	if tr != nil {
-		tr := terr.Add("mail.ServeMailForm", errors.New("Error serving mail form"), tr)
+		tr := tr.Add("Error serving mail form")
 		events.Error("mail", "Can not serve mail form", tr)
 	}
 	content := ""
@@ -55,7 +55,7 @@ func ServeMailForm(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		msg := "Error rendering template: " + err.Error()
 		err := errors.New("Can not render template")
-		tr := terr.New("mail.ServeMailForm", err)
+		tr := terr.New(err)
 		events.Error("mail", msg, tr)
 	}
 }
@@ -77,7 +77,7 @@ func ProcessMailForm(w http.ResponseWriter, r *http.Request) {
 	if Dev == false {
 		tr := sendMail(email, subject, msg)
 		if tr != nil {
-			tr = terr.Pass("mail.ProcessMailForm", tr)
+			tr = tr.Add("Can not send mail")
 			events.Error("mail", msg, tr)
 			return
 		}
@@ -97,7 +97,7 @@ func sendMail(from string, subject string, msg string) *terr.Trace {
 	m.SetBody("text/plain", msg)
 	d := gomail.NewDialer(Conf.Host, Conf.Port, Conf.User, Conf.Password)
 	if err := d.DialAndSend(m); err != nil {
-		tr := terr.New("mail.sendMail", errors.New("Can not send mail"))
+		tr := terr.New("Can not send mail")
 		return tr
 	}
 	events.Info("mail", "Sending mail from "+from)

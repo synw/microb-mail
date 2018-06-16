@@ -3,8 +3,8 @@ package mail
 import (
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
-	"github.com/synw/microb/libmicrob/events"
-	"github.com/synw/microb/libmicrob/msgs"
+	"github.com/synw/microb/events"
+	"github.com/synw/microb/msgs"
 	"github.com/synw/terr"
 )
 
@@ -21,7 +21,7 @@ type Mail struct {
 func connect() (*gorm.DB, *terr.Trace) {
 	db, err := gorm.Open("sqlite3", Conf.DbAddr)
 	if err != nil {
-		tr := terr.New("mail.initDb", err)
+		tr := terr.New(err)
 		return db, tr
 	}
 	return db, nil
@@ -31,7 +31,7 @@ func InitDb() *terr.Trace {
 	msgs.Status("Initializing emails database")
 	db, tr := connect()
 	if tr != nil {
-		tr := terr.Pass("services.logs.db.initDb", tr)
+		tr := tr.Add("Can not initialize emails database")
 		return tr
 	}
 	db.AutoMigrate(&Mail{})
@@ -44,7 +44,7 @@ func GetMails() ([]Mail, *terr.Trace) {
 	//rows, err := database.Table("mails").Limit(10).Order("created_at desc").Rows()
 	res := database.Limit(10).Order("created_at desc").Find(&mails)
 	if res.Error != nil {
-		tr := terr.New("mail.db.GetMails", res.Error)
+		tr := terr.New(res.Error)
 		events.Error("mail", "Can not get mails from db", tr)
 		return mails, tr
 	}

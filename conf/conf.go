@@ -3,7 +3,7 @@ package conf
 import (
 	"errors"
 	"github.com/spf13/viper"
-	"github.com/synw/microb/libmicrob/types"
+	"github.com/synw/microb/types"
 	"github.com/synw/terr"
 	"os"
 	"path/filepath"
@@ -54,11 +54,11 @@ func GetConf() (*Conf, *terr.Trace) {
 		conf := &Conf{}
 		switch err.(type) {
 		case viper.ConfigParseError:
-			tr := terr.New("conf.getConf", err)
+			tr := terr.New(err)
 			return conf, tr
 		default:
 			err := errors.New("Unable to locate config file")
-			tr := terr.New("conf.getConf", err)
+			tr := terr.New(err)
 			return conf, tr
 		}
 	}

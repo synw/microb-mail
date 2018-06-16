@@ -2,9 +2,9 @@ package manifest
 
 import (
 	"github.com/synw/microb-mail/mail"
-	//"github.com/synw/microb/libmicrob/msgs"
-	"github.com/synw/microb/libmicrob/events"
-	"github.com/synw/microb/libmicrob/types"
+	//"github.com/synw/microb/msgs"
+	"github.com/synw/microb/events"
+	"github.com/synw/microb/types"
 	"github.com/synw/terr"
 )
 
@@ -14,14 +14,16 @@ func getCmds() map[string]*types.Cmd {
 	return cmds
 }
 
-func initService(dev bool, start bool) error {
+func initService(dev bool, start bool) *terr.Trace {
 	tr := mail.Init(dev)
 	if tr != nil {
-		return tr.ToErr()
+		tr = tr.Pass()
+		return tr
 	}
 	tr = mail.InitDb()
 	if tr != nil {
-		return tr.ToErr()
+		tr = tr.Pass()
+		return tr
 	}
 	mail.ParseTemplate()
 	return nil
@@ -38,7 +40,7 @@ func runMails(cmd *types.Cmd, c chan *types.Cmd, args ...interface{}) {
 	resp = append(resp, "Last 10 mails sent:")
 	mails, tr := mail.GetMails()
 	if tr != nil {
-		tr = terr.Pass("manifest.Cmds", tr)
+		tr = tr.Add("manifest.Cmds", "Can not get mails")
 		events.Error("mail", "Can not get emails", tr)
 		cmd.Status = "error"
 		c <- cmd
